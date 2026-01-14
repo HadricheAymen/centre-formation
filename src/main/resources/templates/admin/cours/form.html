@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${cours.id != null ? 'Modifier Cours' : 'Nouveau Cours'}">Formulaire Cours</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap"></i> Centre de Formation
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-book-open"></i>
+                            <span th:text="${cours.id != null ? 'Modifier Cours' : 'Nouveau Cours'}"></span>
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="${cours.id != null ? '/admin/cours/' + cours.id : '/admin/cours'}" 
+                              th:object="${cours}" method="post">
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="code" class="form-label">
+                                        <i class="fas fa-barcode"></i> Code *
+                                    </label>
+                                    <input type="text" class="form-control" id="code" 
+                                           th:field="*{code}" required>
+                                </div>
+
+                                <div class="col-md-8 mb-3">
+                                    <label for="titre" class="form-label">
+                                        <i class="fas fa-heading"></i> Titre *
+                                    </label>
+                                    <input type="text" class="form-control" id="titre" 
+                                           th:field="*{titre}" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">
+                                    <i class="fas fa-align-left"></i> Description
+                                </label>
+                                <textarea class="form-control" id="description" rows="3" 
+                                          th:field="*{description}"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="formateur" class="form-label">
+                                        <i class="fas fa-chalkboard-teacher"></i> Formateur *
+                                    </label>
+                                    <select class="form-select" id="formateur" th:field="*{formateur}" required>
+                                        <option value="">-- Sélectionner un formateur --</option>
+                                        <option th:each="f : ${formateurs}"
+                                                th:value="${f.id}"
+                                                th:text="${f.prenom + ' ' + f.nom + ' (' + (f.specialite != null ? f.specialite.nom : 'Aucune spécialité') + ')'}"></option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="specialite" class="form-label">
+                                        <i class="fas fa-tag"></i> Spécialité *
+                                    </label>
+                                    <select class="form-select" id="specialite" th:field="*{specialite}" required>
+                                        <option value="">-- Sélectionner une spécialité --</option>
+                                        <option th:each="s : ${specialites}"
+                                                th:value="${s.id}"
+                                                th:text="${s.code + ' - ' + s.nom}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="nombreHeures" class="form-label">
+                                        <i class="fas fa-clock"></i> Nombre d'heures *
+                                    </label>
+                                    <input type="number" class="form-control" id="nombreHeures" 
+                                           th:field="*{nombreHeures}" min="1" required>
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label for="coefficient" class="form-label">
+                                        <i class="fas fa-percentage"></i> Coefficient *
+                                    </label>
+                                    <input type="number" class="form-control" id="coefficient" 
+                                           th:field="*{coefficient}" min="1" step="0.5" required>
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label for="session" class="form-label">
+                                        <i class="fas fa-calendar-alt"></i> Session
+                                    </label>
+                                    <select class="form-select" id="session" th:field="*{session}">
+                                        <option value="">-- Sélectionner une session --</option>
+                                        <option th:each="sess : ${sessions}" 
+                                                th:value="${sess.id}" 
+                                                th:text="${sess.nom}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="/admin/cours" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Enregistrer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

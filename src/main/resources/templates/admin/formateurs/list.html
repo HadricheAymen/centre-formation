@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Formateurs - Centre de Formation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap"></i> Centre de Formation
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="usersDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-users"></i> Utilisateurs
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="usersDropdown">
+                            <li><a class="dropdown-item" href="/admin/etudiants">
+                                <i class="fas fa-user-graduate"></i> Étudiants
+                            </a></li>
+                            <li><a class="dropdown-item active" href="/admin/formateurs">
+                                <i class="fas fa-chalkboard-teacher"></i> Formateurs
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="coursDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-book"></i> Cours
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="coursDropdown">
+                            <li><a class="dropdown-item" href="/admin/cours">
+                                <i class="fas fa-list"></i> Liste des Cours
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/admin/inscriptions">
+                                <i class="fas fa-clipboard-check"></i> Inscriptions
+                            </a></li>
+                            <li><a class="dropdown-item" href="/admin/seances">
+                                <i class="fas fa-calendar"></i> Emploi du Temps
+                            </a></li>
+                            <li><a class="dropdown-item" href="/admin/statistiques">
+                                <i class="fas fa-chart-pie"></i> Statistiques
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/notes">
+                            <i class="fas fa-star"></i> Notes
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-sign-out-alt"></i> Déconnexion
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <h1><i class="fas fa-chalkboard-teacher"></i> Gestion des Formateurs</h1>
+            </div>
+            <div class="col text-end">
+                <a href="/admin/formateurs/new" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nouveau Formateur
+                </a>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Email</th>
+                                <th>Téléphone</th>
+                                <th>Spécialité</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(formateurs)}">
+                                <td colspan="7" class="text-center text-muted">
+                                    <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                    Aucun formateur trouvé
+                                </td>
+                            </tr>
+                            <tr th:each="formateur : ${formateurs}">
+                                <td th:text="${formateur.nom}"></td>
+                                <td th:text="${formateur.prenom}"></td>
+                                <td th:text="${formateur.email}"></td>
+                                <td th:text="${formateur.telephone ?: '-'}"></td>
+                                <td>
+                                    <span th:if="${formateur.specialite != null}"
+                                          class="badge bg-info">
+                                        <i class="fas fa-tag"></i>
+                                        <span th:text="${formateur.specialite.nom}"></span>
+                                    </span>
+                                    <span th:unless="${formateur.specialite != null}"
+                                          class="text-muted">
+                                        Aucune spécialité
+                                    </span>
+                                </td>
+                                <td>
+                                    <span th:if="${formateur.active}" class="badge bg-success">
+                                        <i class="fas fa-check"></i> Actif
+                                    </span>
+                                    <span th:unless="${formateur.active}" class="badge bg-secondary">
+                                        <i class="fas fa-times"></i> Inactif
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a th:href="@{/admin/formateurs/{id}(id=${formateur.id})}"
+                                           class="btn btn-info" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a th:href="@{/admin/formateurs/{id}/edit(id=${formateur.id})}"
+                                           class="btn btn-warning" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a th:if="${formateur.active}"
+                                           th:href="@{/admin/formateurs/{id}/toggle-active(id=${formateur.id})}"
+                                           class="btn btn-secondary"
+                                           title="Désactiver"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir désactiver ce formateur ?')">
+                                            <i class="fas fa-ban"></i>
+                                        </a>
+                                        <a th:unless="${formateur.active}"
+                                           th:href="@{/admin/formateurs/{id}/toggle-active(id=${formateur.id})}"
+                                           class="btn btn-success"
+                                           title="Activer"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir activer ce formateur ?')">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        <a th:href="@{/admin/formateurs/{id}/delete(id=${formateur.id})}"
+                                           class="btn btn-danger" title="Supprimer"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce formateur ?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chalkboard-teacher"></i> Total Formateurs
+                        </h5>
+                        <h2 class="card-text" th:text="${#lists.size(formateurs)}">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-check-circle"></i> Formateurs Actifs
+                        </h5>
+                        <h2 class="card-text" th:text="${#lists.size(formateurs.?[active == true])}">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-secondary">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-times-circle"></i> Formateurs Inactifs
+                        </h5>
+                        <h2 class="card-text" th:text="${#lists.size(formateurs.?[active == false])}">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+

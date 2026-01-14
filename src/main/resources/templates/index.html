@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centre de Formation - Accueil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 0;
+        }
+        .feature-card {
+            transition: transform 0.3s;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap"></i> Centre de Formation
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">
+                            <i class="fas fa-home"></i> Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">
+                            <i class="fas fa-sign-in-alt"></i> Connexion
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-3 fw-bold mb-4">
+                <i class="fas fa-graduation-cap"></i> Centre de Formation
+            </h1>
+            <p class="lead mb-5">
+                Plateforme de gestion complète pour votre centre de formation
+            </p>
+            <a href="/login" class="btn btn-light btn-lg px-5">
+                <i class="fas fa-sign-in-alt"></i> Accéder à l'application
+            </a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Fonctionnalités Principales</h2>
+            <div class="row g-4">
+                <!-- Feature 1 -->
+                <div class="col-md-4">
+                    <a href="/admin/etudiants" class="text-decoration-none">
+                        <div class="card feature-card h-100">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-users fa-3x text-primary"></i>
+                                </div>
+                                <h5 class="card-title">Gestion des Utilisateurs</h5>
+                                <p class="card-text">
+                                    Gérez facilement les étudiants, formateurs et administrateurs avec un système de rôles complet.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="col-md-4">
+                    <a href="/admin/cours" class="text-decoration-none">
+                        <div class="card feature-card h-100">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-book-open fa-3x text-success"></i>
+                                </div>
+                                <h5 class="card-title">Gestion des Cours</h5>
+                                <p class="card-text">
+                                    Créez et organisez vos cours avec spécialités, sessions pédagogiques et groupes d'étudiants.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="col-md-4">
+                    <a href="/admin/inscriptions" class="text-decoration-none">
+                        <div class="card feature-card h-100">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-clipboard-check fa-3x text-info"></i>
+                                </div>
+                                <h5 class="card-title">Inscriptions en Ligne</h5>
+                                <p class="card-text">
+                                    Les étudiants peuvent s'inscrire aux cours en ligne avec notifications automatiques par email.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="col-md-4">
+                    <a href="/admin/notes" class="text-decoration-none">
+                        <div class="card feature-card h-100">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-star fa-3x text-warning"></i>
+                                </div>
+                                <h5 class="card-title">Gestion des Notes</h5>
+                                <p class="card-text">
+                                    Saisie des notes par les formateurs avec calcul automatique des moyennes et taux de réussite.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="col-md-4">
+                    <a href="/admin/seances" class="text-decoration-none">
+                        <div class="card feature-card h-100">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-calendar-alt fa-3x text-danger"></i>
+                                </div>
+                                <h5 class="card-title">Emploi du Temps</h5>
+                                <p class="card-text">
+                                    Planification des séances avec détection automatique des conflits de salle et de formateur.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="col-md-4">
+                    <a href="/admin/statistiques" class="text-decoration-none">
+                        <div class="card feature-card h-100">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-chart-bar fa-3x text-secondary"></i>
+                                </div>
+                                <h5 class="card-title">Statistiques</h5>
+                                <p class="card-text">
+                                    Tableaux de bord avec statistiques détaillées sur les cours, notes et inscriptions.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">
+                &copy; 2025 Centre de Formation - Application de Gestion
+            </p>
+            <p class="mb-0">
+                <small>Développé avec Spring Boot 3.4.0 & Thymeleaf</small>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

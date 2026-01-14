@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvelle Inscription</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap"></i> Centre de Formation
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-clipboard-check"></i> Nouvelle Inscription
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <form action="/admin/inscriptions" method="post">
+                            <div class="mb-3">
+                                <label for="etudiantId" class="form-label">
+                                    <i class="fas fa-user-graduate"></i> Étudiant *
+                                </label>
+                                <select class="form-select" id="etudiantId" name="etudiantId" required>
+                                    <option value="">Sélectionnez un étudiant</option>
+                                    <option th:each="etudiant : ${etudiants}" 
+                                            th:value="${etudiant.id}"
+                                            th:text="${etudiant.matricule + ' - ' + etudiant.nom + ' ' + etudiant.prenom}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="coursId" class="form-label">
+                                    <i class="fas fa-book"></i> Cours *
+                                </label>
+                                <select class="form-select" id="coursId" name="coursId" required>
+                                    <option value="">Sélectionnez un cours</option>
+                                    <option th:each="cours : ${cours}" 
+                                            th:value="${cours.id}"
+                                            th:text="${cours.code + ' - ' + cours.titre}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="/admin/inscriptions" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Inscrire
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

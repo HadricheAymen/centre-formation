@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails Formateur - Centre de Formation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap"></i> Centre de Formation
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-chalkboard-teacher"></i> Détails du Formateur
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="30%"><i class="fas fa-user"></i> Nom complet:</th>
+                                <td th:text="${formateur.prenom + ' ' + formateur.nom}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-envelope"></i> Email:</th>
+                                <td th:text="${formateur.email}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-phone"></i> Téléphone:</th>
+                                <td th:text="${formateur.telephone ?: 'Non renseigné'}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-tag"></i> Spécialité:</th>
+                                <td>
+                                    <span th:if="${formateur.specialite != null}" 
+                                          class="badge bg-info">
+                                        <span th:text="${formateur.specialite.code + ' - ' + formateur.specialite.nom}"></span>
+                                    </span>
+                                    <span th:unless="${formateur.specialite != null}" 
+                                          class="text-muted">
+                                        Aucune spécialité
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-info-circle"></i> Biographie:</th>
+                                <td th:text="${formateur.biographie ?: 'Non renseignée'}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-check-circle"></i> Statut:</th>
+                                <td>
+                                    <span th:if="${formateur.active}" class="badge bg-success">Actif</span>
+                                    <span th:unless="${formateur.active}" class="badge bg-secondary">Inactif</span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/admin/formateurs" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </a>
+                            <div>
+                                <a th:href="@{/admin/formateurs/{id}/edit(id=${formateur.id})}" 
+                                   class="btn btn-warning">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                                <a th:href="@{/admin/formateurs/{id}/delete(id=${formateur.id})}" 
+                                   class="btn btn-danger"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce formateur ?')">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-bar"></i> Statistiques
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6><i class="fas fa-book"></i> Nombre de cours</h6>
+                            <h3 class="text-primary" th:text="${nombreCours}">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cog"></i> Actions rapides
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a th:if="${formateur.active}"
+                               th:href="@{/admin/formateurs/{id}/toggle-active(id=${formateur.id})}"
+                               class="btn btn-outline-secondary"
+                               onclick="return confirm('Êtes-vous sûr de vouloir désactiver ce formateur ?')">
+                                <i class="fas fa-ban"></i> Désactiver le compte
+                            </a>
+                            <a th:unless="${formateur.active}"
+                               th:href="@{/admin/formateurs/{id}/toggle-active(id=${formateur.id})}"
+                               class="btn btn-outline-success"
+                               onclick="return confirm('Êtes-vous sûr de vouloir activer ce formateur ?')">
+                                <i class="fas fa-check"></i> Activer le compte
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

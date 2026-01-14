@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails Étudiant - Centre de Formation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap"></i> Centre de Formation
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user-graduate"></i> Détails de l'Étudiant
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="30%"><i class="fas fa-id-card"></i> Matricule:</th>
+                                <td th:text="${etudiant.matricule}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-user"></i> Nom complet:</th>
+                                <td th:text="${etudiant.prenom + ' ' + etudiant.nom}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-envelope"></i> Email:</th>
+                                <td th:text="${etudiant.email}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-phone"></i> Téléphone:</th>
+                                <td th:text="${etudiant.telephone ?: 'Non renseigné'}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-map-marker-alt"></i> Adresse:</th>
+                                <td th:text="${etudiant.adresse ?: 'Non renseignée'}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-calendar"></i> Date d'inscription:</th>
+                                <td th:text="${#temporals.format(etudiant.dateInscription, 'dd/MM/yyyy')}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-check-circle"></i> Statut:</th>
+                                <td>
+                                    <span th:if="${etudiant.active}" class="badge bg-success">Actif</span>
+                                    <span th:unless="${etudiant.active}" class="badge bg-secondary">Inactif</span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/admin/etudiants" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </a>
+                            <div>
+                                <a th:href="@{/admin/etudiants/{id}/edit(id=${etudiant.id})}" 
+                                   class="btn btn-warning">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                                <a th:href="@{/admin/etudiants/{id}/delete(id=${etudiant.id})}" 
+                                   class="btn btn-danger"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet étudiant ?')">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <!-- Statistiques -->
+                <div class="card mb-3">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Statistiques</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6>Moyenne Générale</h6>
+                            <h2 class="text-primary" th:text="${#numbers.formatDecimal(moyenne, 1, 2)}">0.00</h2>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Nombre d'inscriptions</h6>
+                            <h3 th:text="${#lists.size(etudiant.inscriptions)}">0</h3>
+                        </div>
+                        <div>
+                            <h6>Nombre de groupes</h6>
+                            <h3 th:text="${#lists.size(etudiant.groupes)}">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions rapides -->
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-bolt"></i> Actions Rapides</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-book"></i> Voir les cours
+                            </a>
+                            <a href="#" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-star"></i> Voir les notes
+                            </a>
+                            <a href="#" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-calendar"></i> Emploi du temps
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

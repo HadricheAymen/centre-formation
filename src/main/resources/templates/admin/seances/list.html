@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Emploi du Temps - Centre de Formation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .seance-card {
+            border-left: 4px solid;
+            transition: transform 0.2s;
+        }
+        .seance-card:hover {
+            transform: translateX(5px);
+        }
+        .seance-cours { border-left-color: #0d6efd; }
+        .seance-td { border-left-color: #198754; }
+        .seance-tp { border-left-color: #ffc107; }
+        .seance-examen { border-left-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap"></i> Centre de Formation
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/etudiants">
+                            <i class="fas fa-users"></i> Étudiants
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="coursDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-book"></i> Cours
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="coursDropdown">
+                            <li><a class="dropdown-item" href="/admin/cours">
+                                <i class="fas fa-list"></i> Liste des Cours
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/admin/inscriptions">
+                                <i class="fas fa-clipboard-check"></i> Inscriptions
+                            </a></li>
+                            <li><a class="dropdown-item active" href="/admin/seances">
+                                <i class="fas fa-calendar"></i> Emploi du Temps
+                            </a></li>
+                            <li><a class="dropdown-item" href="/admin/statistiques">
+                                <i class="fas fa-chart-pie"></i> Statistiques
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/notes">
+                            <i class="fas fa-star"></i> Notes
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-sign-out-alt"></i> Déconnexion
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-calendar-week"></i> Emploi du Temps</h2>
+            <a href="/admin/seances/new" class="btn btn-danger">
+                <i class="fas fa-plus"></i> Planifier une Séance
+            </a>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Vue Calendrier -->
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-calendar"></i> Planning de la Semaine</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 100px;">Heure</th>
+                                <th>Lundi</th>
+                                <th>Mardi</th>
+                                <th>Mercredi</th>
+                                <th>Jeudi</th>
+                                <th>Vendredi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold">08:00-10:00</td>
+                                <td><div class="seance-card seance-cours p-2 rounded"><strong>Java Avancé</strong><br><small>Salle A101</small></div></td>
+                                <td></td>
+                                <td><div class="seance-card seance-tp p-2 rounded"><strong>TP Spring Boot</strong><br><small>Lab B201</small></div></td>
+                                <td></td>
+                                <td><div class="seance-card seance-cours p-2 rounded"><strong>Angular</strong><br><small>Salle A102</small></div></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">10:15-12:15</td>
+                                <td></td>
+                                <td><div class="seance-card seance-cours p-2 rounded"><strong>Spring Boot</strong><br><small>Salle A103</small></div></td>
+                                <td></td>
+                                <td><div class="seance-card seance-td p-2 rounded"><strong>TD Java</strong><br><small>Salle A101</small></div></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">14:00-16:00</td>
+                                <td><div class="seance-card seance-tp p-2 rounded"><strong>TP Angular</strong><br><small>Lab B202</small></div></td>
+                                <td></td>
+                                <td><div class="seance-card seance-cours p-2 rounded"><strong>React</strong><br><small>Salle A104</small></div></td>
+                                <td></td>
+                                <td><div class="seance-card seance-examen p-2 rounded"><strong>Examen Java</strong><br><small>Amphi C</small></div></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">16:15-18:15</td>
+                                <td></td>
+                                <td><div class="seance-card seance-tp p-2 rounded"><strong>TP React</strong><br><small>Lab B203</small></div></td>
+                                <td></td>
+                                <td><div class="seance-card seance-cours p-2 rounded"><strong>Python</strong><br><small>Salle A105</small></div></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des séances -->
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Liste de Toutes les Séances</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Cours</th>
+                                <th>Date</th>
+                                <th>Heure Début</th>
+                                <th>Heure Fin</th>
+                                <th>Salle</th>
+                                <th>Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(seances)}">
+                                <td colspan="7" class="text-center text-muted">
+                                    <i class="fas fa-calendar-times fa-3x mb-3 d-block"></i>
+                                    Aucune séance planifiée
+                                </td>
+                            </tr>
+                            <tr th:each="seance : ${seances}">
+                                <td><strong th:text="${seance.cours.titre}"></strong></td>
+                                <td th:text="${#temporals.format(seance.dateDebut, 'dd/MM/yyyy')}"></td>
+                                <td th:text="${#temporals.format(seance.dateDebut, 'HH:mm')}"></td>
+                                <td th:text="${#temporals.format(seance.dateFin, 'HH:mm')}"></td>
+                                <td><i class="fas fa-door-open"></i> <span th:text="${seance.salle}"></span></td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${seance.type == 'Cours' ? 'bg-primary' :
+                                                          (seance.type == 'TD' ? 'bg-success' :
+                                                          (seance.type == 'TP' ? 'bg-warning' : 'bg-danger'))}"
+                                          th:text="${seance.type}"></span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a th:href="@{/admin/seances/{id}/edit(id=${seance.id})}" class="btn btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a th:href="@{/admin/seances/{id}/delete(id=${seance.id})}" class="btn btn-danger"
+                                           onclick="return confirm('Supprimer cette séance ?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Légende -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6><i class="fas fa-info-circle"></i> Légende des Types de Séances</h6>
+                <div class="d-flex gap-3 flex-wrap">
+                    <span><span class="badge bg-primary">Cours</span> Cours magistral</span>
+                    <span><span class="badge bg-success">TD</span> Travaux dirigés</span>
+                    <span><span class="badge bg-warning">TP</span> Travaux pratiques</span>
+                    <span><span class="badge bg-danger">Examen</span> Évaluation</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 mb-4">
+            <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> Retour à l'accueil</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

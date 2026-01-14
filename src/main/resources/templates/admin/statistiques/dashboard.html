@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistiques - Centre de Formation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .stat-card {
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap"></i> Centre de Formation
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/etudiants">
+                            <i class="fas fa-users"></i> Étudiants
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="coursDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-book"></i> Cours
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="coursDropdown">
+                            <li><a class="dropdown-item" href="/admin/cours">
+                                <i class="fas fa-list"></i> Liste des Cours
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/admin/inscriptions">
+                                <i class="fas fa-clipboard-check"></i> Inscriptions
+                            </a></li>
+                            <li><a class="dropdown-item" href="/admin/seances">
+                                <i class="fas fa-calendar"></i> Emploi du Temps
+                            </a></li>
+                            <li><a class="dropdown-item active" href="/admin/statistiques">
+                                <i class="fas fa-chart-pie"></i> Statistiques
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/notes">
+                            <i class="fas fa-star"></i> Notes
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-sign-out-alt"></i> Déconnexion
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <h2 class="mb-4"><i class="fas fa-chart-line"></i> Tableau de Bord - Statistiques</h2>
+
+        <!-- Statistiques Générales -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-white bg-primary stat-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-3x mb-3"></i>
+                        <h2 class="mb-0" th:text="${totalEtudiants}">0</h2>
+                        <p class="mb-0">Étudiants Inscrits</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-white bg-success stat-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-book fa-3x mb-3"></i>
+                        <h2 class="mb-0" th:text="${totalCours}">0</h2>
+                        <p class="mb-0">Cours Disponibles</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-white bg-info stat-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clipboard-check fa-3x mb-3"></i>
+                        <h2 class="mb-0" th:text="${totalInscriptions}">0</h2>
+                        <p class="mb-0">Inscriptions Actives</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-white bg-warning stat-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-star fa-3x mb-3"></i>
+                        <h2 class="mb-0" th:text="${totalNotes}">0</h2>
+                        <p class="mb-0">Notes Enregistrées</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphiques -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Répartition des Étudiants par Cours</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="coursChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Distribution des Notes</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="notesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tableaux de données -->
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="mb-0"><i class="fas fa-trophy"></i> Top 10 Étudiants</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Matricule</th>
+                                        <th>Nom Complet</th>
+                                        <th>Moyenne</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="etudiant, iterStat : ${etudiants}" th:if="${iterStat.index < 10}">
+                                        <td th:text="${iterStat.index + 1}"></td>
+                                        <td><strong th:text="${etudiant.matricule}"></strong></td>
+                                        <td th:text="${etudiant.nom + ' ' + etudiant.prenom}"></td>
+                                        <td><span class="badge bg-success">15.5/20</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-book-open"></i> Cours Populaires</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Titre</th>
+                                        <th>Inscriptions</th>
+                                        <th>Taux</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="cours, iterStat : ${cours}" th:if="${iterStat.index < 10}">
+                                        <td><strong th:text="${cours.code}"></strong></td>
+                                        <td th:text="${cours.titre}"></td>
+                                        <td><span class="badge bg-primary" th:text="${cours.inscriptions.size()}">0</span></td>
+                                        <td><span class="badge bg-success">85%</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 mb-4">
+            <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> Retour à l'accueil</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Graphique en camembert - Répartition des étudiants par cours
+        const coursCtx = document.getElementById('coursChart').getContext('2d');
+        new Chart(coursCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Java Avancé', 'Spring Boot', 'Angular', 'React', 'Python'],
+                datasets: [{
+                    data: [30, 25, 20, 15, 10],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 206, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Graphique en barres - Distribution des notes
+        const notesCtx = document.getElementById('notesChart').getContext('2d');
+        new Chart(notesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['0-5', '5-10', '10-12', '12-14', '14-16', '16-18', '18-20'],
+                datasets: [{
+                    label: 'Nombre d\'étudiants',
+                    data: [2, 5, 15, 25, 30, 18, 5],
+                    backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 5
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+

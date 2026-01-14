@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails Cours - Centre de Formation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap"></i> Centre de Formation
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-book-open"></i> Détails du Cours
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="30%"><i class="fas fa-barcode"></i> Code:</th>
+                                <td><strong th:text="${cours.code}"></strong></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-heading"></i> Titre:</th>
+                                <td th:text="${cours.titre}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-align-left"></i> Description:</th>
+                                <td th:text="${cours.description ?: 'Aucune description'}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-chalkboard-teacher"></i> Formateur:</th>
+                                <td>
+                                    <span th:if="${cours.formateur != null}" 
+                                          th:text="${cours.formateur.prenom + ' ' + cours.formateur.nom}"></span>
+                                    <span th:unless="${cours.formateur != null}" class="text-muted">Non assigné</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-tag"></i> Spécialité:</th>
+                                <td>
+                                    <span th:if="${cours.specialite != null}" 
+                                          th:text="${cours.specialite.nom}"></span>
+                                    <span th:unless="${cours.specialite != null}" class="text-muted">Non définie</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-calendar-alt"></i> Session:</th>
+                                <td>
+                                    <span th:if="${cours.session != null}" 
+                                          th:text="${cours.session.nom}"></span>
+                                    <span th:unless="${cours.session != null}" class="text-muted">Non définie</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-clock"></i> Nombre d'heures:</th>
+                                <td th:text="${cours.nombreHeures + ' heures'}"></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-percentage"></i> Coefficient:</th>
+                                <td th:text="${cours.coefficient}"></td>
+                            </tr>
+                        </table>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/admin/cours" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </a>
+                            <div>
+                                <a th:href="@{/admin/cours/{id}/edit(id=${cours.id})}" 
+                                   class="btn btn-warning">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                                <a th:href="@{/admin/cours/{id}/delete(id=${cours.id})}" 
+                                   class="btn btn-danger"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce cours ?')">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <!-- Statistiques -->
+                <div class="card mb-3">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Statistiques</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6>Nombre d'inscriptions</h6>
+                            <h2 class="text-primary" th:text="${nombreInscriptions}">0</h2>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Moyenne du cours</h6>
+                            <h2 class="text-success" th:text="${#numbers.formatDecimal(moyenne, 1, 2)}">0.00</h2>
+                        </div>
+                        <div>
+                            <h6>Taux de réussite</h6>
+                            <h2 class="text-warning" th:text="${#numbers.formatDecimal(tauxReussite, 1, 2) + '%'}">0%</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions rapides -->
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-bolt"></i> Actions Rapides</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-users"></i> Voir les inscrits
+                            </a>
+                            <a href="#" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-star"></i> Gérer les notes
+                            </a>
+                            <a href="#" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-calendar"></i> Planifier séances
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

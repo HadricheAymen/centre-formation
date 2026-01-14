@@ -1,0 +1,64 @@
+stages:
+  - build
+  - package
+  - deploy
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+cache:
+  paths:
+    - .m2/repository
+
+# ===============================
+# 1. Build Spring Boot JAR
+# ===============================
+build_app:
+  stage: build
+  image: maven:3.9.6-eclipse-temurin-17
+  script:
+    - echo "Building Spring Boot application (PROD)..."
+    - mvn clean package -P prod -DskipTests
+  artifacts:
+    paths:
+      - target/*.jar
+    expire_in: 1 hour
+  only:
+    - main
+    - master
+
+# ===============================
+# 2. Build Docker Images
+# ===============================
+docker_build:
+  stage: package
+  image: docker:26.1.4
+  services:
+    - docker:26.1.4-dind
+  script:
+    - echo "Building Docker images..."
+    - docker compose build
+  only:
+    - main
+    - master
+
+# ===============================
+# 3. Deploy to Production
+# ===============================
+deploy_prod:
+  stage: deploy
+  image: docker:26.1.4
+  services:
+    - docker:26.1.4-dind
+  script:
+    - echo "Deploying application in PROD mode..."
+    - docker compose down
+    - docker compose up -d
+    - docker ps
+  environment:
+    name: production
+  only:
+    - main
+    - master
