@@ -191,6 +191,21 @@ public class DataLoader implements CommandLineRunner {
         etudiant3.setTelephone("98345678");
         etudiant3.setGroupes(Arrays.asList(groupe2));
         etudiantRepository.save(etudiant3);
+
+        Etudiant etudiant4 = new Etudiant();
+        etudiant4.setEmail("aymenhadriche@gmail.com");
+        etudiant4.setPassword(passwordEncoder.encode("etudiant123"));
+        etudiant4.setNom("Hadriche");
+        etudiant4.setPrenom("Aymen");
+        etudiant4.setRole(Role.ETUDIANT);
+        etudiant4.setActive(true);
+        etudiant4.setMatricule("ETU004");
+        etudiant4.setDateInscription(LocalDate.of(2024, 9, 1));
+        etudiant4.setDateNaissance(LocalDate.of(2003, 7, 25));
+        etudiant4.setAdresse("Gabes, Tunisie");
+        etudiant4.setTelephone("98456789");
+        etudiant4.setGroupes(Arrays.asList(groupe2));
+        etudiantRepository.save(etudiant4);
         
         // Créer des cours
         Cours cours1 = new Cours();
@@ -229,7 +244,55 @@ public class DataLoader implements CommandLineRunner {
         cours3.setSession(session);
         cours3.getGroupes().add(groupe2);
         coursRepository.save(cours3);
-        
+
+        Cours cours4 = new Cours();
+        cours4.setCode("MGMT-101");
+        cours4.setTitre("Principes de Management");
+        cours4.setDescription("Introduction aux concepts de management");
+        cours4.setNombreHeures(30);
+        cours4.setCoefficient(2.0);
+        cours4.setFormateur(formateur3);
+        cours4.setSpecialite(gestionSpecialite);
+        cours4.setSession(session);
+        cours4.getGroupes().add(groupe2);
+        coursRepository.save(cours4);
+
+        Cours cours5 = new Cours();
+        cours5.setCode("SALES-101");
+        cours5.setTitre("Ventes et Marketing");
+        cours5.setDescription("Stratégies de ventes et de marketing");
+        cours5.setNombreHeures(40);
+        cours5.setCoefficient(3.0);
+        cours5.setFormateur(formateur3);
+        cours5.setSpecialite(gestionSpecialite);
+        cours5.setSession(session);
+        cours5.getGroupes().add(groupe1);
+        coursRepository.save(cours5);
+
+        Cours cours6 = new Cours();
+        cours6.setCode("JEE-101");
+        cours6.setTitre("Développement JEE");
+        cours6.setDescription("Développement d'applications Java Enterprise Edition");
+        cours6.setNombreHeures(45);
+        cours6.setCoefficient(3.5);
+        cours6.setFormateur(formateur2);
+        cours6.setSpecialite(infoSpecialite);
+        cours6.setSession(session);
+        cours6.getGroupes().add(groupe2);
+        coursRepository.save(cours6);
+
+        Cours cours7 = new Cours();
+        cours7.setCode("DEVOPS-101");
+        cours7.setTitre("Introduction au DevOps");
+        cours7.setDescription("Introduction aux principes de DevOps");
+        cours7.setNombreHeures(30);
+        cours7.setCoefficient(2.0);
+        cours7.setFormateur(formateur1);
+        cours7.setSpecialite(infoSpecialite);
+        cours7.setSession(session);
+        cours7.getGroupes().add(groupe1);
+        coursRepository.save(cours7);
+
         // Créer des inscriptions
         Inscription inscription1 = new Inscription();
         inscription1.setEtudiant(etudiant1);

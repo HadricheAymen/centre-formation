@@ -1,0 +1,140 @@
+@startuml
+!theme plain
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+title Use Case Diagram - Centre de Formation Management System
+
+left to right direction
+
+actor "Administrator\n(ADMIN)" as Admin #LightBlue
+actor "Instructor\n(FORMATEUR)" as Formateur #LightGreen
+actor "Student\n(ETUDIANT)" as Etudiant #LightYellow
+
+rectangle "Training Center Management System" {
+  
+  package "User Management" {
+    usecase "Manage Students" as UC1
+    usecase "Manage Instructors" as UC2
+    usecase "Manage User Accounts" as UC3
+  }
+  
+  package "Course Management" {
+    usecase "Manage Courses" as UC4
+    usecase "View Courses" as UC5
+    usecase "Assign Instructor to Course" as UC6
+    usecase "View Course Details" as UC7
+  }
+  
+  package "Enrollment Management" {
+    usecase "Manage Enrollments" as UC8
+    usecase "Enroll in Course" as UC9
+    usecase "View My Enrollments" as UC10
+    usecase "Cancel Enrollment" as UC11
+  }
+  
+  package "Grade Management" {
+    usecase "Manage All Grades" as UC12
+    usecase "Enter Grades" as UC13
+    usecase "View My Grades" as UC14
+    usecase "Calculate Averages" as UC15
+    usecase "View Course Statistics" as UC16
+  }
+  
+  package "Schedule Management" {
+    usecase "Manage Sessions" as UC17
+    usecase "Manage Class Schedules" as UC18
+    usecase "View My Schedule" as UC19
+    usecase "View Instructor Schedule" as UC20
+    usecase "Detect Schedule Conflicts" as UC21
+  }
+  
+  package "Group Management" {
+    usecase "Manage Groups" as UC22
+    usecase "Assign Students to Groups" as UC23
+  }
+  
+  package "Specialization Management" {
+    usecase "Manage Specializations" as UC24
+  }
+  
+  package "Authentication" {
+    usecase "Login (Web/API)" as UC25
+    usecase "Change Password" as UC26
+    usecase "View Profile" as UC27
+  }
+}
+
+' Administrator relationships
+Admin --> UC1
+Admin --> UC2
+Admin --> UC3
+Admin --> UC4
+Admin --> UC6
+Admin --> UC8
+Admin --> UC12
+Admin --> UC15
+Admin --> UC16
+Admin --> UC17
+Admin --> UC18
+Admin --> UC21
+Admin --> UC22
+Admin --> UC23
+Admin --> UC24
+
+' Instructor relationships
+Formateur --> UC5
+Formateur --> UC7
+Formateur --> UC13
+Formateur --> UC15
+Formateur --> UC16
+Formateur --> UC20
+
+' Student relationships
+Etudiant --> UC5
+Etudiant --> UC7
+Etudiant --> UC9
+Etudiant --> UC10
+Etudiant --> UC11
+Etudiant --> UC14
+Etudiant --> UC19
+
+' Common to all
+Admin --> UC25
+Admin --> UC26
+Admin --> UC27
+Formateur --> UC25
+Formateur --> UC26
+Formateur --> UC27
+Etudiant --> UC25
+Etudiant --> UC26
+Etudiant --> UC27
+
+' Include relationships
+UC13 .> UC15 : <<include>>
+UC12 .> UC15 : <<include>>
+UC18 .> UC21 : <<include>>
+
+note right of Admin
+  Full system access
+  - CRUD operations on all entities
+  - View all statistics
+  - Manage system configuration
+end note
+
+note right of Formateur
+  Course-specific access
+  - Manage own courses
+  - Enter grades for students
+  - View schedules
+end note
+
+note right of Etudiant
+  Self-service access
+  - View available courses
+  - Enroll/cancel enrollments
+  - View own grades & schedule
+end note
+
+@enduml
+

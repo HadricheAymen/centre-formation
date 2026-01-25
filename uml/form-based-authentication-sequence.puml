@@ -1,0 +1,64 @@
+@startuml
+!theme plain
+skinparam sequenceMessageAlign center
+
+title Form-Based Authentication Sequence - Centre de Formation
+
+actor "User" as WebUser
+participant "Browser" as Browser
+participant "Login Page\n/login" as LoginPage
+participant "Spring Security\nFilter Chain" as WebSecurityFilter
+participant "CustomUserDetailsService" as UserDetailsService
+participant "UserRepository" as UserRepo
+database "Database" as DB
+participant "PasswordEncoder" as PasswordEncoder
+participant "SecurityContext" as SecurityContext
+participant "Session Manager" as SessionManager
+participant "Dashboard\n/admin/dashboard" as Dashboard
+
+WebUser -> Browser: Navigate to protected resource
+Browser -> WebSecurityFilter: GET /admin/dashboard
+WebSecurityFilter -> WebSecurityFilter: Check authentication
+WebSecurityFilter -> Browser: Redirect to /login
+Browser -> LoginPage: Display login form
+
+WebUser -> Browser: Enter credentials\n(email, password)
+Browser -> WebSecurityFilter: POST /login\n(email, password)
+
+WebSecurityFilter -> UserDetailsService: loadUserByUsername(email)
+UserDetailsService -> UserRepo: findByEmail(email)
+UserRepo -> DB: SELECT * FROM users\nWHERE email = ?
+DB --> UserRepo: User entity
+UserRepo --> UserDetailsService: Optional<User>
+
+UserDetailsService -> UserDetailsService: getAuthorities(user)\n[ROLE_ADMIN/FORMATEUR/ETUDIANT]
+UserDetailsService --> WebSecurityFilter: UserDetails\n(email, password, authorities)
+
+WebSecurityFilter -> PasswordEncoder: matches(rawPassword, encodedPassword)
+PasswordEncoder --> WebSecurityFilter: true/false
+
+alt Authentication Success
+    WebSecurityFilter -> SecurityContext: setAuthentication(authToken)
+    WebSecurityFilter -> SessionManager: Create HTTP Session\n(JSESSIONID cookie)
+    SessionManager --> WebSecurityFilter: Session created
+    
+    WebSecurityFilter -> Browser: Redirect to /admin/dashboard
+    Browser -> Dashboard: GET /admin/dashboard\n(with JSESSIONID)
+    Dashboard --> Browser: Render dashboard page
+    Browser --> WebUser: Display dashboard
+else Authentication Failure
+    WebSecurityFilter -> Browser: Redirect to /login?error=true
+    Browser -> LoginPage: Display error message
+    LoginPage --> WebUser: "Invalid credentials"
+end
+
+note over WebSecurityFilter
+  **Web Security Configuration:**
+  - Session Management: STATEFUL
+  - Authentication: Form-based
+  - Session Cookie: JSESSIONID
+  - Default Success URL: /admin/dashboard
+end note
+
+@enduml
+

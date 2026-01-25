@@ -1,0 +1,179 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+title Class Diagram - Security & Authentication Architecture
+
+package "Security Configuration" <<Rectangle>> {
+  
+  class SecurityConfig <<@Configuration>> {
+    - jwtTokenFilter: JwtTokenFilter
+    - userDetailsService: CustomUserDetailsService
+    --
+    + passwordEncoder(): PasswordEncoder
+    + authenticationManager(): AuthenticationManager
+    + apiSecurityFilterChain(): SecurityFilterChain
+    + webSecurityFilterChain(): SecurityFilterChain
+  }
+  
+  note right of SecurityConfig
+    **Dual Security Filter Chains:**
+    1. API Security (Order 1)
+       - JWT-based (stateless)
+       - Matches /api/**
+    2. Web Security (Order 2)
+       - Form-based (stateful)
+       - Session management
+  end note
+}
+
+package "JWT Authentication" <<Rectangle>> {
+  
+  class JwtUtil <<@Component>> {
+    - SECRET_KEY: Key
+    - validityInMilliseconds: long
+    --
+    + generateToken(username: String, roles: List<String>): String
+    + extractUsername(token: String): String
+    + extractRoles(token: String): List<String>
+    + getAuthentication(token: String): Authentication
+    + isTokenExpired(token: String): boolean
+    + validateToken(token: String, username: String): boolean
+  }
+  
+  class JwtTokenFilter <<@Component>> {
+    - jwtUtil: JwtUtil
+    --
+    # doFilterInternal(request: HttpServletRequest, \n  response: HttpServletResponse, \n  filterChain: FilterChain): void
+    - resolveToken(request: HttpServletRequest): String
+  }
+  
+  note bottom of JwtTokenFilter
+    Intercepts API requests
+    Extracts JWT from Authorization header
+    Validates token and sets SecurityContext
+  end note
+}
+
+package "User Details Service" <<Rectangle>> {
+  
+  class CustomUserDetailsService <<@Service>> {
+    - userRepository: UserRepository
+    --
+    + loadUserByUsername(email: String): UserDetails
+    - getAuthorities(user: User): Collection<GrantedAuthority>
+  }
+  
+  interface UserDetailsService <<Spring Security>> {
+    + loadUserByUsername(username: String): UserDetails
+  }
+  
+  CustomUserDetailsService ..|> UserDetailsService
+}
+
+package "REST Controller" <<Rectangle>> {
+  
+  class AuthController <<@RestController>> {
+    - jwtUtil: JwtUtil
+    - userService: UserService
+    - etudiantService: EtudiantService
+    --
+    + login(loginRequest: LoginRequest): ResponseEntity<?>
+    + register(etudiant: Etudiant): ResponseEntity<?>
+    + changePassword(email: String, oldPassword: String, \n  newPassword: String): ResponseEntity<?>
+    + getProfile(email: String): ResponseEntity<?>
+  }
+  
+  class LoginRequest <<DTO>> {
+    - email: String
+    - password: String
+  }
+}
+
+package "Entity Layer" <<Rectangle>> {
+  
+  abstract class User {
+    # id: Long
+    # email: String
+    # password: String
+    # nom: String
+    # prenom: String
+    # role: Role
+    # active: Boolean
+    # createdAt: LocalDateTime
+    # updatedAt: LocalDateTime
+    --
+    # onCreate(): void
+    # onUpdate(): void
+  }
+  
+  class Etudiant {
+    - matricule: String
+    - dateInscription: LocalDate
+    - dateNaissance: LocalDate
+    - adresse: String
+    - telephone: String
+    - groupes: List<Groupe>
+    - inscriptions: List<Inscription>
+    - notes: List<Note>
+    --
+    + addInscription(inscription: Inscription): void
+    + removeInscription(inscription: Inscription): void
+    + addNote(note: Note): void
+    + removeNote(note: Note): void
+  }
+  
+  class Formateur {
+    - telephone: String
+    - biographie: String
+    - specialite: Specialite
+    - cours: List<Cours>
+    --
+    + addCours(cours: Cours): void
+    + removeCours(cours: Cours): void
+  }
+  
+  enum Role {
+    ADMIN
+    FORMATEUR
+    ETUDIANT
+  }
+  
+  User <|-- Etudiant
+  User <|-- Formateur
+  User *-- Role
+  
+  note right of User
+    **Inheritance Strategy:**
+    JOINED table inheritance
+    - users (base table)
+    - etudiants (joined)
+    - formateurs (joined)
+  end note
+}
+
+package "Repository Layer" <<Rectangle>> {
+  
+  interface UserRepository <<@Repository>> {
+    + findByEmail(email: String): Optional<User>
+  }
+}
+
+' Relationships
+SecurityConfig --> JwtTokenFilter : uses
+SecurityConfig --> CustomUserDetailsService : uses
+JwtTokenFilter --> JwtUtil : uses
+CustomUserDetailsService --> UserRepository : uses
+AuthController --> JwtUtil : uses
+AuthController --> LoginRequest : receives
+UserRepository ..> User : manages
+
+note as N1
+  **Authentication Flow:**
+  1. Web: Form login → CustomUserDetailsService → Session
+  2. API: POST /api/auth/login → JWT token generation
+end note
+
+@enduml
+

@@ -1,0 +1,107 @@
+@startuml
+!theme plain
+skinparam sequenceMessageAlign center
+
+title JWT-Based Authentication Sequence - Centre de Formation
+
+actor "API Client" as APIClient
+participant "API Endpoint\n/api/auth/login" as AuthEndpoint
+participant "AuthController" as AuthController
+participant "UserService" as UserService
+participant "UserRepository" as UserRepo2
+database "Database" as DB2
+participant "PasswordEncoder" as PasswordEncoder2
+participant "JwtUtil" as JwtUtil
+participant "Protected API\n/api/etudiants" as ProtectedAPI
+participant "JwtTokenFilter" as JwtFilter
+participant "SecurityContext" as SecurityContext2
+
+== Initial Login Flow ==
+
+APIClient -> AuthEndpoint: POST /api/auth/login\n{"email": "...", "password": "..."}
+AuthEndpoint -> AuthController: login(LoginRequest)
+
+AuthController -> UserService: authenticateUser(email, password)
+UserService -> UserRepo2: findByEmail(email)
+UserRepo2 -> DB2: SELECT * FROM users\nWHERE email = ?
+DB2 --> UserRepo2: User entity
+UserRepo2 --> UserService: Optional<User>
+
+UserService -> PasswordEncoder2: matches(rawPassword, user.password)
+PasswordEncoder2 --> UserService: true/false
+
+alt Authentication Success
+    UserService --> AuthController: Authentication successful
+    
+    AuthController -> UserService: getUserByEmail(email)
+    UserService --> AuthController: User (with role)
+    
+    AuthController -> JwtUtil: generateToken(email, [role])
+    JwtUtil -> JwtUtil: Create JWT claims:\n- subject: email\n- roles: ADMIN/FORMATEUR/ETUDIANT\n- issuedAt: now\n- expiration: now + 48h
+    JwtUtil -> JwtUtil: Sign with SECRET_KEY
+    JwtUtil --> AuthController: JWT token string
+    
+    AuthController --> AuthEndpoint: ResponseEntity\n{"token": "...", "user": {...}}
+    AuthEndpoint --> APIClient: 200 OK\n{"token": "eyJhbG...", "user": {...}}
+    
+    note over APIClient
+      Client stores JWT token
+      for subsequent requests
+    end note
+    
+else Authentication Failure
+    UserService --> AuthController: Authentication failed
+    AuthController --> AuthEndpoint: ResponseEntity (401)
+    AuthEndpoint --> APIClient: 401 Unauthorized\n{"error": "Invalid credentials"}
+end
+
+|||
+
+' == Token Storage ==
+
+' APIClient -> APIClient: Store JWT token\n(localStorage, sessionStorage, or memory)
+
+' |||
+
+' == Subsequent API Request with JWT ==
+
+' APIClient -> ProtectedAPI: GET /api/etudiants\nAuthorization: Bearer <JWT>
+' ProtectedAPI -> JwtFilter: doFilterInternal()
+
+' JwtFilter -> JwtFilter: resolveToken(request)\nExtract token from\nAuthorization header
+
+' JwtFilter -> JwtUtil: extractUsername(token)
+' JwtUtil -> JwtUtil: Parse JWT claims
+' JwtUtil --> JwtFilter: username (email)
+
+' JwtFilter -> JwtUtil: validateToken(token, username)
+' JwtUtil -> JwtUtil: Check expiration\nVerify signature
+' JwtUtil --> JwtFilter: true/false
+
+' alt Token Valid
+'     JwtFilter -> JwtUtil: getAuthentication(token)
+'     JwtUtil -> JwtUtil: Extract roles from claims
+'     JwtUtil -> JwtUtil: Create authorities:\n[ROLE_ADMIN, etc.]
+'     JwtUtil --> JwtFilter: UsernamePasswordAuthenticationToken\n(username, null, authorities)
+    
+'     JwtFilter -> SecurityContext2: setAuthentication(authToken)
+'     JwtFilter -> ProtectedAPI: Continue filter chain
+    
+'     ProtectedAPI -> ProtectedAPI: @PreAuthorize check\n(hasAnyRole('ADMIN', 'FORMATEUR'))
+'     ProtectedAPI --> APIClient: 200 OK\n[{students data}]
+    
+' else Token Invalid/Expired
+'     JwtFilter -> ProtectedAPI: Continue without authentication
+'     ProtectedAPI --> APIClient: 401 Unauthorized
+' end
+
+' note over JwtFilter
+'   **API Security Configuration:**
+'   - Session Management: STATELESS
+'   - Authentication: JWT Bearer token
+'   - Token Validity: 48 hours
+'   - Filter Order: Before UsernamePasswordAuthenticationFilter
+' end note
+
+@enduml
+

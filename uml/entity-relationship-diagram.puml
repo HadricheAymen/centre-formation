@@ -1,0 +1,195 @@
+@startuml
+!theme plain
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+title Entity Relationship Diagram - Centre de Formation Domain Model
+
+package "User Hierarchy" <<Rectangle>> #F0F8FF {
+  
+  abstract class User {
+    + id: Long <<PK>>
+    + email: String <<unique>>
+    + password: String
+    + nom: String
+    + prenom: String
+    + role: Role
+    + active: Boolean
+    + createdAt: LocalDateTime
+    + updatedAt: LocalDateTime
+  }
+  
+  class Etudiant {
+    + matricule: String <<unique>>
+    + dateInscription: LocalDate
+    + dateNaissance: LocalDate
+    + adresse: String
+    + telephone: String
+  }
+  
+  class Formateur {
+    + telephone: String
+    + biographie: String
+  }
+  
+  enum Role {
+    ADMIN
+    FORMATEUR
+    ETUDIANT
+  }
+  
+  User <|-- Etudiant
+  User <|-- Formateur
+  User *-- Role
+  
+  note right of User
+    **JOINED Inheritance Strategy**
+    - Base table: users
+    - Joined tables: etudiants, formateurs
+    - PrimaryKeyJoinColumn: user_id
+  end note
+}
+
+package "Course Management" <<Rectangle>> #F5F5DC {
+  
+  class Cours {
+    + id: Long <<PK>>
+    + code: String <<unique>>
+    + titre: String
+    + description: String
+    + nombreHeures: Integer
+    + coefficient: Double
+  }
+  
+  class Specialite {
+    + id: Long <<PK>>
+    + code: String <<unique>>
+    + nom: String
+    + description: String
+  }
+  
+  class SessionPedagogique {
+    + id: Long <<PK>>
+    + code: String <<unique>>
+    + nom: String
+    + dateDebut: LocalDate
+    + dateFin: LocalDate
+    + active: Boolean
+  }
+}
+
+package "Student Organization" <<Rectangle>> #E6F3E6 {
+  
+  class Groupe {
+    + id: Long <<PK>>
+    + code: String <<unique>>
+    + nom: String
+    + capaciteMax: Integer
+  }
+}
+
+package "Academic Records" <<Rectangle>> #FFF0F5 {
+  
+  class Inscription {
+    + id: Long <<PK>>
+    + dateInscription: LocalDateTime
+    + active: Boolean
+    + dateAnnulation: LocalDateTime
+  }
+  
+  class Note {
+    + id: Long <<PK>>
+    + valeur: Double
+    + typeEvaluation: String
+    + dateEvaluation: LocalDateTime
+    + commentaire: String
+    + createdAt: LocalDateTime
+    + updatedAt: LocalDateTime
+  }
+}
+
+package "Scheduling" <<Rectangle>> #FFFACD {
+  
+  class Seance {
+    + id: Long <<PK>>
+    + dateDebut: LocalDateTime
+    + dateFin: LocalDateTime
+    + salle: String
+    + type: String
+  }
+}
+
+' User Hierarchy Relationships
+Formateur "1" --> "0..1" Specialite : specialite
+Formateur "1" --> "*" Cours : cours\n<<cascade=ALL>>
+
+' Course Relationships
+Cours "*" --> "0..1" Formateur : formateur
+Cours "*" --> "0..1" Specialite : specialite
+Cours "*" --> "0..1" SessionPedagogique : session
+
+' Specialite Relationships
+Specialite "1" --> "*" Formateur : formateurs\n<<cascade=ALL>>
+Specialite "1" --> "*" Cours : cours\n<<cascade=ALL>>
+
+' SessionPedagogique Relationships
+SessionPedagogique "1" --> "*" Cours : cours\n<<cascade=ALL>>
+
+' Many-to-Many: Etudiant <-> Groupe
+Etudiant "*" -- "*" Groupe : groupes/etudiants\n<<join table:\netudiant_groupe>>
+
+' Many-to-Many: Cours <-> Groupe
+Cours "*" -- "*" Groupe : groupes/cours\n<<join table:\ncours_groupe>>
+
+' Inscription Relationships
+Etudiant "1" --> "*" Inscription : inscriptions\n<<cascade=ALL,\norphanRemoval>>
+Cours "1" --> "*" Inscription : inscriptions\n<<cascade=ALL,\norphanRemoval>>
+Inscription "*" --> "1" Etudiant : etudiant
+Inscription "*" --> "1" Cours : cours
+
+' Note Relationships
+Etudiant "1" --> "*" Note : notes\n<<cascade=ALL,\norphanRemoval>>
+Cours "1" --> "*" Note : notes\n<<cascade=ALL,\norphanRemoval>>
+Note "*" --> "1" Etudiant : etudiant
+Note "*" --> "1" Cours : cours
+
+' Seance Relationships
+Cours "1" --> "*" Seance : seances\n<<cascade=ALL,\norphanRemoval>>
+Seance "*" --> "1" Cours : cours
+
+note as N1
+  **Cascade Operations:**
+  - Etudiant → Inscription/Note: CascadeType.ALL + orphanRemoval
+  - Cours → Inscription/Note/Seance: CascadeType.ALL + orphanRemoval
+  - Formateur → Cours: CascadeType.ALL
+  - Specialite → Formateur/Cours: CascadeType.ALL
+  - SessionPedagogique → Cours: CascadeType.ALL
+end note
+
+note as N2
+  **Bidirectional Relationships:**
+  - Etudiant ↔ Inscription (OneToMany/ManyToOne)
+  - Cours ↔ Inscription (OneToMany/ManyToOne)
+  - Etudiant ↔ Note (OneToMany/ManyToOne)
+  - Cours ↔ Note (OneToMany/ManyToOne)
+  - Cours ↔ Seance (OneToMany/ManyToOne)
+  - Etudiant ↔ Groupe (ManyToMany)
+  - Cours ↔ Groupe (ManyToMany)
+end note
+
+note as N3
+  **Unique Constraints:**
+  - Inscription: (etudiant_id, cours_id)
+    Prevents duplicate enrollments
+end note
+
+note as N4
+  **Key Business Rules:**
+  - Inscription.active flag for soft delete
+  - Note.typeEvaluation: "Examen", "TP", "Projet", "CC"
+  - Seance.type: "Cours", "TD", "TP"
+  - User.role determines access level
+end note
+
+@enduml
+
